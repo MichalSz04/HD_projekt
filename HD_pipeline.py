@@ -5,10 +5,10 @@ from google.genai import types
 from neo4j import GraphDatabase
 
 # --- KONFIGURACJA ---
-NEO4J_URI =
-NEO4J_USER =
-NEO4J_PASSWORD = 
-GEMINI_API_KEY =
+NEO4J_URI = ""
+NEO4J_USER = ""
+NEO4J_PASSWORD = ""
+GEMINI_API_KEY = ""
 
 # Inicjalizacja nowego klienta Gemini
 client = genai.Client(api_key=GEMINI_API_KEY)
@@ -233,18 +233,74 @@ def extract_with_gemini(raw_text):
 
 
 def save_to_neo4j(data):
-    print("Wysyłanie do Neo4j Aura...")
+    print("Rozpoczynam miękką walidację schematu i przesyłanie do Neo4j...")
+
+    node_type_map = {node['id']: node['type'] for node in data.get('nodes', [])}
+
+    VALID_ONTOLOGY = {
+        "ŁĄCZY_SIĘ_Z": {
+            ("Odcinek drogi", "Skrzyżowanie"), ("Skrzyżowanie", "Odcinek drogi"),
+            ("Odcinek drogi", "Rondo"), ("Rondo", "Odcinek drogi")
+        },
+        "ZAWIERA": {
+            ("Odcinek drogi", "Obiekt inżynieryjny"),
+            ("Odcinek drogi", "Rondo")
+        },
+        "PRZECHODZI_NAD": {
+            ("Obiekt inżynieryjny", "Odcinek drogi"),
+            ("Odcinek drogi", "Obiekt inżynieryjny")
+        },
+        "PRZECHODZI_POD": {
+            ("Obiekt inżynieryjny", "Odcinek drogi"),
+            ("Odcinek drogi", "Obiekt inżynieryjny")
+        },
+        "DOJAZD_DO": {
+            ("Odcinek drogi", "Punkt POI"),
+            ("Obiekt inżynieryjny", "Punkt POI")
+        }
+    }
+
     driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
     with driver.session() as session:
+
         for node in data.get('nodes', []):
             query = f"MERGE (n:`{node['type']}` {{id: $id}}) SET n += $props"
             session.run(query, id=node['id'], props=node['properties'])
 
         for rel in data.get('relationships', []):
-            query = f"MATCH (a {{id: $source}}), (b {{id: $target}}) MERGE (a)-[:{rel['type']}]->(b)"
-            session.run(query, source=rel['source'], target=rel['target'])
+            source_id = rel['source']
+            target_id = rel['target']
+            rel_type = rel['type']
+
+            is_valid = True
+            reason = ""
+
+            if source_id not in node_type_map or target_id not in node_type_map:
+                is_valid = False
+                reason = "Brak definicji jednego z węzłów w sekcji 'nodes'."
+            else:
+                source_type = node_type_map[source_id]
+                target_type = node_type_map[target_id]
+
+                if rel_type not in VALID_ONTOLOGY:
+                    is_valid = False
+                    reason = f"Nieznany typ relacji '{rel_type}' poza oficjalną specyfikacją."
+                else:
+                    current_pair = (source_type, target_type)
+                    if current_pair not in VALID_ONTOLOGY[rel_type]:
+                        is_valid = False
+                        reason = f"Niedozwolone połączenie typów: ({source_type}) -[{rel_type}]-> ({target_type})."
+
+            if not is_valid:
+                print(f"WALIDACJA OSTRZEGAWCZA: Model utworzył relację niezgodną z ontologią!")
+                print(f"   Połączenie: {source_id} -[{rel_type}]-> {target_id} | Powód: {reason}")
+                print(f"   [INFO] Relacja zostaje mimo to wymuszona i zapisana w bazie Neo4j.")
+
+            query = f"MATCH (a {{id: $source}}), (b {{id: $target}}) MERGE (a)-[:{rel_type}]->(b)"
+            session.run(query, source=source_id, target=target_id)
+
     driver.close()
-    print("Graf zaktualizowany!")
+    print("Graf zaktualizowany (zastosowano asynchroniczny audyt ontologiczny)!")
 
 
 if __name__ == "__main__":
