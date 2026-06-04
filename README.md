@@ -16,7 +16,7 @@ System automatycznie wyodrębnia obiekty inżynieryjne, odcinki dróg, skrzyżow
 
 ---
 
-## 🛠️ Architektura i Technologie
+## Architektura i Technologie
 * **Język programowania:** Python 3.10+
 * **Model LLM:** Google Gemini 2.5 Flash (`gemini-2.5-flash`) via `google-genai` SDK
 * **Baza danych:** Neo4j Aura (Grafowa baza danych w chmurze)
