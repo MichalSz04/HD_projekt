@@ -3,12 +3,15 @@ import os
 from google import genai
 from google.genai import types
 from neo4j import GraphDatabase
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # --- KONFIGURACJA ---
-NEO4J_URI = ""
-NEO4J_USER = ""
-NEO4J_PASSWORD = ""
-GEMINI_API_KEY = ""
+NEO4J_URI = os.getenv("NEO4J_URI")
+NEO4J_USER = os.getenv("NEO4J_USER")
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Inicjalizacja nowego klienta Gemini
 client = genai.Client(api_key=GEMINI_API_KEY)
