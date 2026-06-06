@@ -1,13 +1,11 @@
-Oto **jeden, kompletny tekst**, gotowy do skopiowania od samej góry do samego dołu i wklejenia bezpośrednio do Twojego pliku `README.md`. Zawiera on wszystkie punkty, w tym wirtualne środowisko, plik `.env`, instrukcję uruchomienia oraz tabele z wynikami, połączone w jedną całość.
-
 ```markdown
-# 🛣️ Wykorzystanie Modelu Gemini i Bazy Neo4j do Analizy Grafów Infrastruktury Liniowej
+#  Wykorzystanie Modelu Gemini i Bazy Neo4j do Analizy Grafów Infrastruktury Liniowej
 
 Projekt realizuje automatyczną konwersję nieustrukturyzowanych tekstów technicznych (komunikaty GDDKiA) na model grafu właściwości (Labeled Property Graph) w bazie danych Neo4j.
 
 ---
 
-## 🛠️ Instrukcja Uruchomienia i Konfiguracja (Config)
+##  Instrukcja Uruchomienia i Konfiguracja (Config)
 
 ### 1. Przygotowanie środowiska wirtualnego (Virtual Env)
 W głównym katalogu projektu utwórz i aktywuj wirtualne środowisko Pythona, a następnie zainstaluj wymagane pakiety zewnętrzne zdefiniowane w pliku manifestu:
