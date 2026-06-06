@@ -1,10 +1,10 @@
-# 🛣️ Wykorzystanie Modelu Gemini i Bazy Neo4j do Analizy Grafów Infrastruktury Liniowej
+# Wykorzystanie Modelu Gemini i Bazy Neo4j do Analizy Grafów Infrastruktury Liniowej
 
 Projekt realizuje automatyczną konwersję nieustrukturyzowanych tekstów technicznych (komunikaty GDDKiA) na model grafu właściwości w bazie danych Neo4j.
 
 ---
 
-## 🛠️ Instrukcja Uruchomienia i Konfiguracja (Config)
+## Instrukcja Uruchomienia i Konfiguracja (Config)
 
 ### 1. Przygotowanie środowiska wirtualnego (Virtual Env)
 W głównym katalogu projektu utwórz i aktywuj wirtualne środowisko Pythona, a następnie zainstaluj wymagane pakiety:
