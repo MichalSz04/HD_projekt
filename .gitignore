@@ -1,0 +1,13 @@
+# Zmienne środowiskowe i hasła
+.env
+
+# Wirtualne środowisko Pythona
+.venv/
+venv/
+ENV/
+
+# Pliki podręczne i lokalne wyniki
+__pycache__/
+*.pyc
+*.json
+data/
