@@ -62,3 +62,25 @@ python nazwa_twojego_skryptu.py
 
 ---
 
+##  Wizualizacja i Przegląd Wyników w Neo4j Browser
+
+Aby zweryfikować poprawność zaimportowanych danych i wyświetlić wygenerowany graf infrastruktury liniowej, zaloguj się do panelu **Neo4j Aura / Neo4j Browser** i użyj poniższych zapytań w języku **Cypher**:
+
+### 1. Wyświetlenie całego wygenerowanego grafu
+
+To podstawowe zapytanie, które pozwola zobaczyć pełną sieć powiązań (wszystkie pobrane węzły oraz relacje przestrzenne między nimi):
+
+```cypher
+MATCH (n) OPTIONAL MATCH (n)-[r]->(m) RETURN n, r, m
+
+```
+
+### 2. Czyszczenie bazy danych (Reset przed kolejnym testem)
+
+By usunąć wszystkie dane z bazy, aby przetestować kolejny graf należy przed wgraniem nowych danych do bazy wykonać zapytanie czyszczące:
+
+```cypher
+MATCH (n) DETACH DELETE n
+
+```
+
