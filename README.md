@@ -31,7 +31,7 @@ Dane dostępowe do chmurowej bazy danych oraz klucze API zostały odizolowane od
 
 1. Skopiuj plik demonstracyjny `.env.example` i utwórz na jego podstawie lokalny plik konfiguracyjny `.env`:
 ```bash
-cp .env.example .env
+copy .env.example .env
 
 ```
 
