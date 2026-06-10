@@ -7,6 +7,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+REQUIRED_ENV_VARS = ["NEO4J_URI", "NEO4J_USER", "NEO4J_PASSWORD", "GEMINI_API_KEY"]
+missing_vars = [var for var in REQUIRED_ENV_VARS if not os.getenv(var)]
+
+if missing_vars:
+    print("\n[BŁĄD KRYTYCZNY] Brak wymaganych zmiennych środowiskowych w pliku .env!")
+    print(f"Uzupełnij w pliku .env następujące pola: {', '.join(missing_vars)}")
+    print("Skopiuj plik .env.example jako .env i wpisz poprawne dane.")
+    exit(1)
+
 # --- KONFIGURACJA ---
 NEO4J_URI = os.getenv("NEO4J_URI")
 NEO4J_USER = os.getenv("NEO4J_USER")
@@ -29,8 +38,8 @@ JSON, który zostanie zaimportowany do bazy Neo4j.
 2. DOPUSZCZALNE RELACJE:
 • ŁĄCZY_SIĘ_Z: (Odcinek <-> Skrzyżowanie/Rondo)
 • ZAWIERA: (Odcinek -> Obiekt inżynieryjny/Rondo)
-• PRZECHODZI_NAD / PRZECHODZI_POD: (Obiekt inżynieryjny <-> Droga)
-• DOJAZD_DO: (Odcinek/Obiekt -> Punkt POI)
+• PRZECHODZI_NAD / PRZECHODZI_POD: (Obiekt inżynieryjny <-> Odcinek drogi)
+• DOJAZD_DO: (Odcinek drogi/Obiekt inżynieryjny -> Punkt POI)
 3. ZASADY EKSTRAKCJI:
 • Zwracaj wyniki WYŁĄCZNIE w formacie JSON.
 • Każdy węzeł musi mieć unikalne ID (np. N1, N2).
@@ -194,7 +203,7 @@ ZADANIE: Przeanalizuj poniższy tekst i wygeneruj graf JSON zgodnie z powyższym
 """
 
 
-def extract_with_gemini(raw_text):
+def extract_with_gemini(raw_text, filename):
     print("Gemini analizuje tekst z parametrem (temperature=0.0)...")
     model_id = "gemini-2.5-flash"
 
@@ -224,9 +233,11 @@ def extract_with_gemini(raw_text):
         print(json.dumps(parsed_json, indent=4, ensure_ascii=False))
         print("=" * 50 + "\n")
 
-        with open("ostatni_wynik.json", "w", encoding="utf-8") as f:
+        output_filename = filename.replace('.txt', '_wynik.json')
+
+        with open(output_filename, "w", encoding="utf-8") as f:
             json.dump(parsed_json, f, indent=4, ensure_ascii=False)
-        print("Wynik zapisanego pliku: ostatni_wynik.json")
+        print(f"Wynik zapisanego pliku: {output_filename}")
 
         return parsed_json
 
@@ -340,6 +351,9 @@ if __name__ == "__main__":
 
     print(f"\nRozpoczynam sekwencyjne przetwarzanie wybranych plików ({len(wybrane_indeksy)})...")
 
+    sukcesy = []
+    bledy = []
+
     for idx in wybrane_indeksy:
         nazwa_pliku = pliki[idx]
         pelna_sciezka = os.path.join(DATA_FOLDER, nazwa_pliku)
@@ -352,12 +366,26 @@ if __name__ == "__main__":
             with open(pelna_sciezka, "r", encoding="utf-8") as f:
                 tekst_z_pliku = f.read()
 
-            wynik_json = extract_with_gemini(tekst_z_pliku)
+            wynik_json = extract_with_gemini(tekst_z_pliku, nazwa_pliku)
             save_to_neo4j(wynik_json)
+
             print(f"Sukces dla pliku: {nazwa_pliku}")
+            sukcesy.append(nazwa_pliku)
 
         except Exception as e:
             print(f"Problem podczas przetwarzania pliku {nazwa_pliku}: {e}")
+            bledy.append((nazwa_pliku, str(e)))
             print("Przechodzę do kolejnego wybranego zadania...")
 
-    print("\nWszystkie wybrane przez Ciebie pliki zostały pomyślnie obsłużone.")
+    print("\n" + "=" * 15 + " PODSUMOWANIE PROCESU " + "=" * 15)
+    if sukcesy:
+        print(f"Pomyślnie przetworzono pliki ({len(sukcesy)}):")
+        for s in sukcesy:
+            print(f"   - {s}")
+
+    if bledy:
+        print(f"\nNie udało się przetworzyć plików ({len(bledy)}):")
+        for b_plik, b_powod in bledy:
+            print(f"   - {b_plik} | Powód: {b_powod}")
+
+    print("=" * 52)
