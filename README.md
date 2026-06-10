@@ -53,7 +53,7 @@ GEMINI_API_KEY=twoj-klucz-api-gemini
 2. Umieść surowe pliki tekstowe (z rozszerzeniem `.txt`) zawierające opisy techniczne dróg w folderze `data`.
 3. Uruchom główny skrypt aplikacji:
 ```bash
-python nazwa_twojego_skryptu.py
+python HD_pipeline.py
 
 ```
 
