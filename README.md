@@ -68,6 +68,8 @@ Aby zweryfikować poprawność zaimportowanych danych i wyświetlić wygenerowan
 
 ### 1. Wyświetlenie całego wygenerowanego grafu
 
+Poniższe polecenia należy wykonywać w sekcji "query" w interfejsie neo
+
 To podstawowe zapytanie, które pozwola zobaczyć pełną sieć powiązań (wszystkie pobrane węzły oraz relacje przestrzenne między nimi):
 
 ```cypher
